@@ -16,6 +16,10 @@ class TOKEN(Enum):
     VEC = auto()
     EQUIV = auto()
     PLUSMINUS = auto()
+    LEFT_BRACE = auto()
+    RIGHT_BRACE = auto()
+    LEFT_STRAIGHT_BRACE = auto()
+    RIGHT_STRAIGHT_BRACE = auto()
 
 class LatexToken:
     def __init__(self, t : TOKEN) -> None:
@@ -54,6 +58,14 @@ class LatexToken:
             return r"\equiv"
         if (self.token is TOKEN.PLUSMINUS):
             return r"\pm"
+        if (self.token is TOKEN.LEFT_BRACE):
+            return r"\left("
+        if (self.token is TOKEN.RIGHT_BRACE):
+            return r"\right)"
+        if (self.token is TOKEN.LEFT_STRAIGHT_BRACE):
+            return r"\left|"
+        if (self.token is TOKEN.RIGHT_STRAIGHT_BRACE):
+            return r"\right|"
         raise Exception()
 
     def html_form(self) -> str:
@@ -83,6 +95,14 @@ class LatexToken:
             return r"&equiv;"
         if (self.token is TOKEN.PLUSMINUS):
             return r"&#177;"
+        if (self.token is TOKEN.LEFT_BRACE):
+            return r"("
+        if (self.token is TOKEN.RIGHT_BRACE):
+            return r")"
+        if (self.token is TOKEN.LEFT_STRAIGHT_BRACE):
+            return r"|"
+        if (self.token is TOKEN.RIGHT_STRAIGHT_BRACE):
+            return r"|"
         raise Exception()
 
     def to_html(self) -> str:
