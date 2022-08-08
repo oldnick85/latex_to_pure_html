@@ -15,6 +15,7 @@ class TOKEN(Enum):
     SUP = auto()
     VEC = auto()
     EQUIV = auto()
+    PLUSMINUS = auto()
 
 class LatexToken:
     def __init__(self, t : TOKEN) -> None:
@@ -51,6 +52,8 @@ class LatexToken:
             return r"\vec"
         if (self.token is TOKEN.EQUIV):
             return r"\equiv"
+        if (self.token is TOKEN.PLUSMINUS):
+            return r"\pm"
         raise Exception()
 
     def html_form(self) -> str:
@@ -78,6 +81,8 @@ class LatexToken:
             return r"^"
         if (self.token is TOKEN.EQUIV):
             return r"&equiv;"
+        if (self.token is TOKEN.PLUSMINUS):
+            return r"&#177;"
         raise Exception()
 
     def to_html(self) -> str:
