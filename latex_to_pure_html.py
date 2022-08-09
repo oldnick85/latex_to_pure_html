@@ -177,19 +177,29 @@ class LatexBlock:
 
     def parse_token(self, t : LatexToken, c : List[Union[str, LatexToken]]) -> List[Union[str, LatexToken]]:
         res : List[Union[str, LatexToken]] = []
+        t_latex = t.latex_form()
         for s in c:
             if (type(s) == str):
                 cur_pos = 0
-                t_b = s.find(t.latex_form(), cur_pos)
+                t_b = self.find_token_latex(s, t_latex, cur_pos)
                 while (t_b != -1):
                     res.append(s[cur_pos:t_b])
                     res.append(t)
-                    cur_pos = t_b + len(t.latex_form())
-                    t_b = s.find(t.latex_form(), cur_pos)
+                    cur_pos = t_b + len(t_latex)
+                    t_b = self.find_token_latex(s, t_latex, cur_pos)
                 res.append(s[cur_pos:len(s)])
             else:
                 res.append(s)
         return res
+
+    def find_token_latex(self, s : str, t_latex : str, cur_pos : int) -> int:
+        pos = s.find(t_latex, cur_pos)
+        last_pos = pos + len(t_latex)
+        if ((pos == -1) or (last_pos >= len(s))):
+            return pos
+        if ((t_latex[-1].isalnum()) and (s[last_pos].isalnum())):
+            return -1
+        return pos
 
     def parse_tokens(self, s : str) -> List[Union[str, LatexToken]]:
         res : List[Union[str, LatexToken]] = [s]
