@@ -20,6 +20,7 @@ class TOKEN(Enum):
     RIGHT_BRACE = auto()
     LEFT_STRAIGHT_BRACE = auto()
     RIGHT_STRAIGHT_BRACE = auto()
+    PMOD = auto()
 
 class LatexToken:
     def __init__(self, t : TOKEN) -> None:
@@ -66,6 +67,8 @@ class LatexToken:
             return r"\left|"
         if (self.token is TOKEN.RIGHT_STRAIGHT_BRACE):
             return r"\right|"
+        if (self.token is TOKEN.PMOD):
+            return r"\pmod"
         raise Exception()
 
     def html_form(self) -> str:
@@ -103,6 +106,8 @@ class LatexToken:
             return r"|"
         if (self.token is TOKEN.RIGHT_STRAIGHT_BRACE):
             return r"|"
+        if (self.token is TOKEN.PMOD):
+            return r"mod"
         raise Exception()
 
     def to_html(self) -> str:
@@ -212,6 +217,7 @@ class LatexBlock:
         self.parse_expression_infix(TOKEN.SUB)
         self.parse_expression_infix(TOKEN.SUP)
         self.parse_expression_prefix(TOKEN.VEC, 1)
+        self.parse_expression_prefix(TOKEN.PMOD, 1)
         return
 
     def parse_expression_prefix(self, token : TOKEN, parameters_count : int):
@@ -280,6 +286,9 @@ class LatexExpression:
         if (self.token.token is TOKEN.VEC):
             right_part = self.parameters[0] if type(self.parameters[0]) == str else self.parameters[0].to_html()
             return f'<b style="text-decoration-line:overline">{right_part}</b>'
+        if (self.token.token is TOKEN.PMOD):
+            right_part = self.parameters[0] if type(self.parameters[0]) == str else self.parameters[0].to_html()
+            return f'(mod {right_part})'
         raise Exception()
 
 class LatexFormula:
