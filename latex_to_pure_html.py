@@ -6,7 +6,9 @@ class TOKEN(Enum):
     RIGHT_CURLY_BRACE = auto()
     INTEGRAL = auto()
     LE = auto()
-    BE = auto()
+    GE = auto()
+    LEQ = auto()
+    GEQ = auto()
     NE = auto()
     FRAC = auto()
     CDOT = auto()
@@ -39,8 +41,12 @@ class LatexToken:
             return r"\int"
         if (self.token is TOKEN.LE):
             return r"\le"
-        if (self.token is TOKEN.BE):
+        if (self.token is TOKEN.GE):
             return r"\ge"
+        if (self.token is TOKEN.LEQ):
+            return r"\leq"
+        if (self.token is TOKEN.GEQ):
+            return r"\geq"
         if (self.token is TOKEN.NE):
             return r"\ne"
         if (self.token is TOKEN.FRAC):
@@ -80,7 +86,11 @@ class LatexToken:
             return r"&int;"
         if (self.token is TOKEN.LE):
             return r"&le;"
-        if (self.token is TOKEN.BE):
+        if (self.token is TOKEN.GE):
+            return r"&ge;"
+        if (self.token is TOKEN.LEQ):
+            return r"&le;"
+        if (self.token is TOKEN.GEQ):
             return r"&ge;"
         if (self.token is TOKEN.NE):
             return r"&ne;"
