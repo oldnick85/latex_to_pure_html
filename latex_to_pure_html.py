@@ -1,210 +1,78 @@
-from typing import List, Union
+from typing import List, Union, Any, Optional
 from enum import Enum, auto
 
-class TOKEN(Enum):
-    LEFT_CURLY_BRACE = auto()
-    RIGHT_CURLY_BRACE = auto()
-    INTEGRAL = auto()
-    LE = auto()
-    GE = auto()
-    LEQ = auto()
-    GEQ = auto()
-    NE = auto()
-    FRAC = auto()
-    CDOT = auto()
-    VARX = auto()
-    SUB = auto()
-    SUP = auto()
-    VEC = auto()
-    EQUIV = auto()
-    PLUSMINUS = auto()
-    LEFT_BRACE = auto()
-    RIGHT_BRACE = auto()
-    LEFT_STRAIGHT_BRACE = auto()
-    RIGHT_STRAIGHT_BRACE = auto()
-    PMOD = auto()
+T_AST = List[Union[str, "LatexToken", "LatexBlock"]]
 
-class LatexToken:
-    def __init__(self, t : TOKEN) -> None:
-        self.token : TOKEN = t
-        return
+class LatexTokenMetaclass(type): 
 
-    def __eq__(self, o) -> bool:
-        return ((type(o) == LatexToken) and (self.token is o.token))
+    def __new__(cls, name, bases, dct):
+        new_latex_token_class = super(LatexTokenMetaclass, cls).__new__(cls, name, bases, dct)
+        if (name != "LatexToken"):
+            new_latex_token_class._latex_token_classes.append(new_latex_token_class)
+        return new_latex_token_class
 
-    def latex_form(self) -> str:
-        if (self.token is TOKEN.LEFT_CURLY_BRACE):
-            return r"\{"
-        if (self.token is TOKEN.RIGHT_CURLY_BRACE):
-            return r"\}"
-        if (self.token is TOKEN.INTEGRAL):
-            return r"\int"
-        if (self.token is TOKEN.LE):
-            return r"\le"
-        if (self.token is TOKEN.GE):
-            return r"\ge"
-        if (self.token is TOKEN.LEQ):
-            return r"\leq"
-        if (self.token is TOKEN.GEQ):
-            return r"\geq"
-        if (self.token is TOKEN.NE):
-            return r"\ne"
-        if (self.token is TOKEN.FRAC):
-            return r"\frac"
-        if (self.token is TOKEN.CDOT):
-            return r"\cdot"
-        if (self.token is TOKEN.VARX):
-            return r"\x"
-        if (self.token is TOKEN.SUB):
-            return r"_"
-        if (self.token is TOKEN.SUP):
-            return r"^"
-        if (self.token is TOKEN.VEC):
-            return r"\vec"
-        if (self.token is TOKEN.EQUIV):
-            return r"\equiv"
-        if (self.token is TOKEN.PLUSMINUS):
-            return r"\pm"
-        if (self.token is TOKEN.LEFT_BRACE):
-            return r"\left("
-        if (self.token is TOKEN.RIGHT_BRACE):
-            return r"\right)"
-        if (self.token is TOKEN.LEFT_STRAIGHT_BRACE):
-            return r"\left|"
-        if (self.token is TOKEN.RIGHT_STRAIGHT_BRACE):
-            return r"\right|"
-        if (self.token is TOKEN.PMOD):
-            return r"\pmod"
-        raise Exception()
+class LatexToken(metaclass = LatexTokenMetaclass):
+    _latex_token_classes : List[Any] = []
+    _latex_signature_prefix : int = 0
+    _latex_signature_postfix : int = 0
+    __prefix_parameters : List[Any] = []
+    __postfix_parameters : List[Any] = []
+    __latex_form : List[str] = []
+    __html_form : str = ""
+    latex_to_html : Optional[List[Any]] = None
 
-    def html_form(self) -> str:
-        if (self.token is TOKEN.LEFT_CURLY_BRACE):
-            return r"{"
-        if (self.token is TOKEN.RIGHT_CURLY_BRACE):
-            return r"}"
-        if (self.token is TOKEN.INTEGRAL):
-            return r"&int;"
-        if (self.token is TOKEN.LE):
-            return r"&le;"
-        if (self.token is TOKEN.GE):
-            return r"&ge;"
-        if (self.token is TOKEN.LEQ):
-            return r"&le;"
-        if (self.token is TOKEN.GEQ):
-            return r"&ge;"
-        if (self.token is TOKEN.NE):
-            return r"&ne;"
-        if (self.token is TOKEN.FRAC):
-            return r"&frasl;"
-        if (self.token is TOKEN.CDOT):
-            return r"&middot;"
-        if (self.token is TOKEN.VARX):
-            return r"x"
-        if (self.token is TOKEN.SUB):
-            return r"_"
-        if (self.token is TOKEN.SUP):
-            return r"^"
-        if (self.token is TOKEN.EQUIV):
-            return r"&equiv;"
-        if (self.token is TOKEN.PLUSMINUS):
-            return r"&#177;"
-        if (self.token is TOKEN.LEFT_BRACE):
-            return r"("
-        if (self.token is TOKEN.RIGHT_BRACE):
-            return r")"
-        if (self.token is TOKEN.LEFT_STRAIGHT_BRACE):
-            return r"|"
-        if (self.token is TOKEN.RIGHT_STRAIGHT_BRACE):
-            return r"|"
-        if (self.token is TOKEN.PMOD):
-            return r"mod"
-        raise Exception()
-
-    def to_html(self) -> str:
-        return self.html_form()
-
-    def __repr__(self) -> str:
-        return f"T[{self.token}]"
-
-    def __str__(self) -> str:
-        return f"T[{self.token}]"
-
-class LatexBlock:
-    def __init__(self, st : str = "", cont : List[Union[str, LatexToken, "LatexBlock"]] = []):
-        self.content : List[Union[str, LatexToken, LatexBlock]] = cont
-        if (len(self.content) == 0):
-            self.parse(st)
-        return
-
-    def __repr__(self) -> str:
-        return f"B{self.content}"
-
-    def __str__(self) -> str:
-        return f"B{self.content}"
-
-    def to_html(self) -> str:
-        res = ""
-        for elt in self.content:
-            if (type(elt) == str):
-                res += elt
+    def __init__(self) -> None:
+        if (not (self.latex_to_html is None)):
+            if (type(self.latex_to_html[0]) == list):
+                self.__latex_form = self.latex_to_html[0]
             else:
-                res += elt.to_html()
+                self.__latex_form = [self.latex_to_html[0]]
+            self.__html_form = self.latex_to_html[1]
+            if (len(self.latex_to_html) > 2):
+                self._latex_signature_prefix = self.latex_to_html[2]
+            if (len(self.latex_to_html) > 3):
+                self._latex_signature_postfix = self.latex_to_html[3]
+        return
+
+    def pref_p(self, i : int) -> str:
+        return self._parameter_to_html(self.__prefix_parameters[i])
+
+    def post_p(self, i : int) -> str:
+        return self._parameter_to_html(self.__postfix_parameters[i])
+
+    @staticmethod
+    def _parameter_to_html(parameter) -> str:
+        res : str = parameter if (type(parameter) == str) else parameter.to_html()
         return res
 
-    def parse(self, s : str) -> None:
-        self.content = self.parse_tokens(s)
-        self.atomize_strings()
-        block_found = True
-        while (block_found):
-            block_found = False
-            brace_right = 0
-            while ((brace_right < len(self.content)) and (self.content[brace_right] != "}")):
-                brace_right = brace_right + 1
-            if (brace_right >= len(self.content)):
-                continue
-            brace_left = brace_right
-            while ((brace_left >= 0) and (self.content[brace_left] != "{")):
-                brace_left = brace_left - 1
-            if (brace_left < 0):
-                continue
-            block_found = True
-            new_content : List[Union[str, LatexToken, LatexBlock]] = []
-            new_content.extend(self.content[0:brace_left])
-            new_content.append(LatexBlock(cont = self.content[brace_left+1:brace_right]))
-            new_content.extend(self.content[brace_right+1:len(self.content)])
-            self.content = new_content
-        for elt in self.content:
-            if (type(elt) == LatexBlock):
-                elt.parse_expressions()
-        self.parse_expressions()
+    def set_parameters(self, pre_par, post_par) -> None:
+        self.__prefix_parameters  = pre_par
+        self.__postfix_parameters = post_par
         return
 
-    def atomize_strings(self) -> None:
-        res : List[Union[str, LatexToken, LatexBlock]] = []
-        for elt in self.content:
-            if (type(elt) == str):
-                for c in elt:
-                    res.append(c)
-            else:
-                res.append(elt)
-        self.content = res
-        return
+    @staticmethod
+    def parse_tokens(res : T_AST) -> T_AST:
+        for token_class in LatexToken._latex_token_classes:
+            token = token_class()
+            res = token.parse(res)
+        return res
 
-    def parse_token(self, t : LatexToken, c : List[Union[str, LatexToken]]) -> List[Union[str, LatexToken]]:
-        res : List[Union[str, LatexToken]] = []
-        t_latex = t.latex_form()
-        for s in c:
-            if (type(s) == str):
-                cur_pos = 0
-                t_b = self.find_token_latex(s, t_latex, cur_pos)
-                while (t_b != -1):
-                    res.append(s[cur_pos:t_b])
-                    res.append(t)
-                    cur_pos = t_b + len(t_latex)
+    def parse(self, c : T_AST) -> T_AST:
+        for t_latex in self.__latex_form:
+            res : T_AST = []
+            for s in c:
+                if (type(s) == str):
+                    cur_pos = 0
                     t_b = self.find_token_latex(s, t_latex, cur_pos)
-                res.append(s[cur_pos:len(s)])
-            else:
-                res.append(s)
+                    while (t_b != -1):
+                        res.append(s[cur_pos:t_b])
+                        res.append(self)
+                        cur_pos = t_b + len(t_latex)
+                        t_b = self.find_token_latex(s, t_latex, cur_pos)
+                    res.append(s[cur_pos:len(s)])
+                else:
+                    res.append(s)
+            c = res
         return res
 
     def find_token_latex(self, s : str, t_latex : str, cur_pos : int) -> int:
@@ -215,124 +83,199 @@ class LatexBlock:
         if ((t_latex[-1].isalnum()) and (s[last_pos].isalnum())):
             return -1
         return pos
+    
+    def to_html(self) -> str:
+        return self.__html_form
 
-    def parse_tokens(self, s : str) -> List[Union[str, LatexToken]]:
-        res : List[Union[str, LatexToken]] = [s]
-        for token in TOKEN:
-            res = self.parse_token(LatexToken(token), res)
+class LatexTokenSTRAIGHT_BRACE(LatexToken):
+    latex_to_html = [r"\|", r"|"]
+    
+class LatexTokenLEFT_BRACE(LatexToken):
+    latex_to_html = [r"\(", r"("]
+
+class LatexTokenRIGHT_BRACE(LatexToken):
+    latex_to_html = [r"\)", r")"]
+
+class LatexTokenLEFT_CURLY_BRACE(LatexToken):
+    latex_to_html = [r"\{", r"{"]
+
+class LatexTokenRIGHT_CURLY_BRACE(LatexToken):
+    latex_to_html = [r"\}", r"}"]
+
+class LatexTokenPLUSMINUS(LatexToken):
+    latex_to_html = [r"\pm", r"&#177;"]
+
+class LatexTokenEQUIV(LatexToken):
+    latex_to_html = [r"\equiv", r"&equiv;"]
+
+class LatexTokenCDOT(LatexToken):
+    latex_to_html = [r"\cdot", r"&middot;"]
+
+class LatexTokenNE(LatexToken):
+    latex_to_html = [r"\ne", r"&ne;"]
+
+class LatexTokenLE(LatexToken):
+    latex_to_html = [[r"\le", r"\leq"], r"&le;"]
+
+class LatexTokenGE(LatexToken):
+    latex_to_html = [[r"\ge", r"\geq"], r"&ge;"]
+    
+class LatexTokenINTEGRAL(LatexToken):
+    latex_to_html = [r"\int", r"&int;"]
+    
+class LatexTokenFRAC(LatexToken):
+    latex_to_html = [r"\frac", r"&frasl;", 0, 2]
+    
+    def to_html(self) -> str:
+        res = f'<table style="display:inline-table;" border="1" frame="void" rules="all">\n<tr>\n<td>{self.post_p(0)}</td>\n</tr>\n<tr>\n<td>{self.post_p(1)}</td>\n</tr>\n</table>'
         return res
+    
+class LatexTokenVEC(LatexToken):
+    latex_to_html = [r"\vec", None, 0, 1]
+    
+    def to_html(self) -> str:
+        res = f'<b style="text-decoration-line:overline">{self.post_p(0)}</b>'
+        return res
+    
+class LatexTokenSUB(LatexToken):
+    latex_to_html = [r"_", None, 1, 1]
+    
+    def to_html(self) -> str:
+        res = f"{self.pref_p(0)}<sub>{self.post_p(0)}</sub>"
+        return res
+    
+class LatexTokenSUP(LatexToken):
+    latex_to_html = [r"^", None, 1, 1]
 
-    def parse_expressions(self) -> None:
-        self.parse_expression_prefix(TOKEN.FRAC, 2)
-        self.parse_expression_infix(TOKEN.SUB)
-        self.parse_expression_infix(TOKEN.SUP)
-        self.parse_expression_prefix(TOKEN.VEC, 1)
-        self.parse_expression_prefix(TOKEN.PMOD, 1)
-        return
-
-    def parse_expression_prefix(self, token : TOKEN, parameters_count : int):
-        expression_found = True
-        while (expression_found):
-            cur_pos = 0
-            expression_found = False
-            while ((cur_pos < len(self.content)) and (not (self.content[cur_pos] == LatexToken(token)))):
-                cur_pos = cur_pos + 1
-            if (cur_pos >= len(self.content)):
-                continue
-            expression_found = True
-            res : List[Union[str, LatexToken, LatexBlock]] = []
-            res.extend(self.content[0:cur_pos])
-            p = []
-            for i in range(parameters_count):
-                p.append(self.content[cur_pos+1+i])
-            res.append(LatexExpression(LatexToken(token), p))
-            res.extend(self.content[cur_pos+1+parameters_count:len(self.content)])
-            self.content = res
-        return
-
-    def parse_expression_infix(self, token : TOKEN):
-        expression_found = True
-        while (expression_found):
-            cur_pos = 0
-            expression_found = False
-            while ((cur_pos < len(self.content)) and (not (self.content[cur_pos] == LatexToken(token)))):
-                cur_pos = cur_pos + 1
-            if (cur_pos >= len(self.content)):
-                continue
-            expression_found = True
-            res : List[Union[str, LatexToken, LatexBlock]] = []
-            res.extend(self.content[0:cur_pos-1])
-            res.append(LatexExpression(LatexToken(token), [self.content[cur_pos-1], self.content[cur_pos+1]]))
-            res.extend(self.content[cur_pos+2:len(self.content)])
-            self.content = res
-        return
-
-class LatexExpression:
-    def __init__(self, t : LatexToken, p : List[LatexBlock]):
-        self.token = t
-        self.parameters = p
+    def to_html(self) -> str:
+        res = f"{self.pref_p(0)}<sup>{self.post_p(0)}</sup>"
+        return res
+    
+class LatexTokenPMOD(LatexToken):
+    latex_to_html = [r"\pmod", None, 0, 1]
+    
+    def to_html(self) -> str:
+        res = f'(mod {self.post_p(0)})'
+        return res
+    
+class LatexBlock:
+    def __init__(self, st : str = "", cont : T_AST = []) -> None:
+        self._content : T_AST = cont
+        if (len(self._content) == 0):
+            self.__parse(st)
         return
 
     def __repr__(self) -> str:
-        return f"E[{self.token}{self.parameters}]"
+        return f"B{self._content}"
 
     def __str__(self) -> str:
-        return f"E[{self.token}{self.parameters}]"
+        return f"B{self._content}"
 
     def to_html(self) -> str:
-        if (self.token.token is TOKEN.FRAC):
-            left_part = self.parameters[0] if type(self.parameters[0]) == str else self.parameters[0].to_html()
-            right_part = self.parameters[1] if type(self.parameters[1]) == str else self.parameters[1].to_html()
-            res = f'<table style="display:inline-table;" border="1" frame="void" rules="all">\n<tr>\n<td>{left_part}</td>\n</tr>\n<tr>\n<td>{right_part}</td>\n</tr>\n</table>'
-            return res
-        if (self.token.token is TOKEN.SUB):
-            left_part = self.parameters[0] if type(self.parameters[0]) == str else self.parameters[0].to_html()
-            right_part = self.parameters[1] if type(self.parameters[1]) == str else self.parameters[1].to_html()
-            return f"{left_part}<sub>{right_part}</sub>"
-        if (self.token.token is TOKEN.SUP):
-            left_part = self.parameters[0] if type(self.parameters[0]) == str else self.parameters[0].to_html()
-            right_part = self.parameters[1] if type(self.parameters[1]) == str else self.parameters[1].to_html()
-            return f"{left_part}<sup>{right_part}</sup>"
-        if (self.token.token is TOKEN.VEC):
-            right_part = self.parameters[0] if type(self.parameters[0]) == str else self.parameters[0].to_html()
-            return f'<b style="text-decoration-line:overline">{right_part}</b>'
-        if (self.token.token is TOKEN.PMOD):
-            right_part = self.parameters[0] if type(self.parameters[0]) == str else self.parameters[0].to_html()
-            return f'(mod {right_part})'
-        raise Exception()
-
-class LatexFormula:
-    def __init__(self, s : str) -> None:
-        self.content : List[Union[str, LatexBlock]] = []
-        self.parse(s)
-        return
-
-    def __str__(self) -> str:
-        return f"F{self.content}"
-
-    def to_html(self) -> str:
-        res = ""
-        for elt in self.content:
-            if (type(elt) == str):
+        res : str = ""
+        for elt in self._content:
+            if (isinstance(elt, str)):
                 res += elt
             else:
                 res += elt.to_html()
-        return f"<i>{res}</i>"
+        return res
 
-    def parse(self, s : str) -> None:
-        block = LatexBlock(st = s)
-        self.content = block.content
+    def __parse(self, s : str) -> None:
+        self._content = self.__parse_tokens(s)
+        self.__atomize_strings()
+        self.__parse_blocks()
+        self.__parse_class_expressions()
         return
+
+    def __parse_blocks(self) -> None:
+        block_found = True
+        while (block_found):
+            block_found = False
+            brace_right = 0
+            while ((brace_right < len(self._content)) and (self._content[brace_right] != "}")):
+                brace_right = brace_right + 1
+            if (brace_right >= len(self._content)):
+                continue
+            brace_left = brace_right
+            while ((brace_left >= 0) and (self._content[brace_left] != "{")):
+                brace_left = brace_left - 1
+            if (brace_left < 0):
+                continue
+            block_found = True
+            new_content : T_AST = []
+            new_content.extend(self._content[0:brace_left])
+            new_content.append(LatexBlock(cont = self._content[brace_left+1:brace_right]))
+            new_content.extend(self._content[brace_right+1:len(self._content)])
+            self._content = new_content
+        return
+
+    def __atomize_strings(self) -> None:
+        res : T_AST = []
+        for elt in self._content:
+            if (type(elt) == str):
+                for c in elt:
+                    res.append(c)
+            else:
+                res.append(elt)
+        self._content = res
+        return
+
+    def __parse_tokens(self, s : str) -> T_AST:
+        res : T_AST = [s]
+        res = LatexToken.parse_tokens(res)
+        return res
+
+    def __parse_class_expressions(self) -> None:
+        expression_found : bool = True
+        cur_pos : int = 0
+        while (expression_found):
+            expression_found = False
+            while ((cur_pos < len(self._content)) and (not (isinstance(self._content[cur_pos], LatexToken)))):
+                cur_pos = cur_pos + 1
+            if (cur_pos >= len(self._content)):
+                continue
+            token = self._content[cur_pos]
+            assert isinstance(token, LatexToken)
+            pre_count : int = token._latex_signature_prefix
+            post_count : int = token._latex_signature_postfix
+            expression_found = True
+            res : List[Union[str, LatexToken, LatexBlock]] = []
+            res.extend(self._content[0:cur_pos-pre_count])
+            p_pre = []
+            for i in range(pre_count):
+                p_pre.append(self._content[cur_pos-1-i])
+            p_post = []
+            for i in range(post_count):
+                p_post.append(self._content[cur_pos+1+i])
+            token.set_parameters(p_pre, p_post)
+            res.append(token)
+            new_cur_pos = len(res)
+            res.extend(self._content[cur_pos+post_count+1:len(self._content)])
+            self._content = res
+            cur_pos = new_cur_pos
+        return
+
+class LatexFormula(LatexBlock):
+    def __init__(self, s : str) -> None:
+        LatexBlock.__init__(self, s)
+        return
+
+    def __str__(self) -> str:
+        return f"F{self._content}"
+
+    def to_html(self) -> str:
+        res = LatexBlock.to_html(self)
+        return f"<i>{res}</i>"
 
 class LatexText:
     def __init__(self, s : str) -> None:
-        self.content : List[Union[str, LatexFormula]] = []
-        self.parse(s)
+        self.__content : List[Union[str, LatexFormula]] = []
+        self.__parse(s)
         return
 
-    def parse(self, s : str) -> None:
+    def __parse(self, s : str) -> None:
         res : List[Union[str, LatexFormula]] = []
-        cur_position = 0
+        cur_position : int = 0
         while (cur_position != -1) and (cur_position < len(s)):
             dl_start = s.find("$", cur_position)
             if (dl_start != -1):
@@ -348,13 +291,13 @@ class LatexText:
             else:
                 res.append(s[cur_position:])
                 cur_position = dl_start
-        self.content = res
+        self.__content = res
         return
 
     def to_html(self) -> str:
         res = ""
-        for elt in self.content:
-            if (type(elt) == str):
+        for elt in self.__content:
+            if (isinstance(elt, str)):
                 res += elt
             else:
                 res += elt.to_html()
