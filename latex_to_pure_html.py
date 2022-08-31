@@ -87,6 +87,115 @@ class LatexToken(metaclass = LatexTokenMetaclass):
     def to_html(self) -> str:
         return self.__html_form
 
+# Greek letters
+
+class LatexTokenAlpha(LatexToken):
+    latex_to_html = [r"\alpha", r"&alpha;"]
+
+class LatexTokenBeta(LatexToken):
+    latex_to_html = [r"\beta", r"&beta;"]
+
+class LatexTokenGamma(LatexToken):
+    latex_to_html = [r"\gamma", r"&gamma;"]
+
+class LatexTokenGAMMA(LatexToken):
+    latex_to_html = [r"\Gamma", r"&Gamma;"]
+
+class LatexTokenDelta(LatexToken):
+    latex_to_html = [r"\delta", r"&delta;"]
+
+class LatexTokenDELTA(LatexToken):
+    latex_to_html = [r"\Delta", r"&Delta;"]
+
+class LatexTokenEpsilon(LatexToken):
+    latex_to_html = [[r"\epsilon", r"\varepsilon"], r"&epsilon;"]
+
+class LatexTokenZeta(LatexToken):
+    latex_to_html = [r"\zeta", r"&zeta;"]
+
+class LatexTokenEta(LatexToken):
+    latex_to_html = [r"\eta", r"&eta;"]
+
+class LatexTokenTheta(LatexToken):
+    latex_to_html = [r"\theta", r"&theta;"]
+
+class LatexTokenVarTheta(LatexToken):
+    latex_to_html = [r"\vartheta", r"&thetasym;"]
+
+class LatexTokenTHETA(LatexToken):
+    latex_to_html = [r"\Theta", r"&Theta;"]
+
+class LatexTokenIota(LatexToken):
+    latex_to_html = [r"\iota", r"&iota;"]
+
+class LatexTokenKappa(LatexToken):
+    latex_to_html = [r"\kappa", r"&kappa;"]
+
+class LatexTokenLambda(LatexToken):
+    latex_to_html = [r"\lambda", r"&lambda;"]
+
+class LatexTokenLambda(LatexToken):
+    latex_to_html = [r"\Lambda", r"&Lambda;"]
+
+class LatexTokenMu(LatexToken):
+    latex_to_html = [r"\mu", r"&mu;"]
+
+class LatexTokenNu(LatexToken):
+    latex_to_html = [r"\nu", r"&nu;"]
+
+class LatexTokenXi(LatexToken):
+    latex_to_html = [r"\xi", r"&xi;"]
+
+class LatexTokenXI(LatexToken):
+    latex_to_html = [r"\Xi", r"&Xi;"]
+
+class LatexTokenPi(LatexToken):
+    latex_to_html = [r"\pi", r"&pi;"]
+
+class LatexTokenPI(LatexToken):
+    latex_to_html = [r"\Pi", r"&Pi;"]
+
+class LatexTokenRho(LatexToken):
+    latex_to_html = [[r"\rho", r"\varrho"], r"&rho;"]
+
+class LatexTokenSigma(LatexToken):
+    latex_to_html = [r"\sigma", r"&sigma;"]
+
+class LatexTokenSIGMA(LatexToken):
+    latex_to_html = [r"\Sigma", r"&Sigma;"]
+
+class LatexTokenTau(LatexToken):
+    latex_to_html = [r"\tau", r"&tau;"]
+
+class LatexTokenUpsilon(LatexToken):
+    latex_to_html = [r"\upsilon", r"&upsilon;"]
+
+class LatexTokenUPSILON(LatexToken):
+    latex_to_html = [r"\Upsilon", r"&Upsilon;"]
+
+class LatexTokenPhi(LatexToken):
+    latex_to_html = [[r"\phi", r"\varphi"], r"&phi;"]
+
+class LatexTokenPHI(LatexToken):
+    latex_to_html = [r"\Phi", r"&Phi;"]
+
+class LatexTokenChi(LatexToken):
+    latex_to_html = [r"\chi", r"&chi;"]
+
+class LatexTokenPsi(LatexToken):
+    latex_to_html = [r"\psi", r"&psi;"]
+
+class LatexTokenPSI(LatexToken):
+    latex_to_html = [r"\Psi", r"&Psi;"]
+
+class LatexTokenOmega(LatexToken):
+    latex_to_html = [r"\omega", r"&omega;"]
+
+class LatexTokenOMEGA(LatexToken):
+    latex_to_html = [r"\Omega", r"&Omega;"]
+
+# Braces
+
 class LatexTokenSTRAIGHT_BRACE(LatexToken):
     latex_to_html = [r"\|", r"|"]
     
