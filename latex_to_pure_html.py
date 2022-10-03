@@ -197,19 +197,19 @@ class LatexTokenOMEGA(LatexToken):
 # Braces
 
 class LatexTokenSTRAIGHT_BRACE(LatexToken):
-    latex_to_html = [r"\|", r"|"]
+    latex_to_html = [[r"\|", r"\left|", r"\right|"], r"|"]
     
 class LatexTokenLEFT_BRACE(LatexToken):
-    latex_to_html = [r"\(", r"("]
+    latex_to_html = [[r"\(", r"\left("], r"("]
 
 class LatexTokenRIGHT_BRACE(LatexToken):
-    latex_to_html = [r"\)", r")"]
+    latex_to_html = [[r"\)", r"\right)"], r")"]
 
 class LatexTokenLEFT_CURLY_BRACE(LatexToken):
-    latex_to_html = [r"\{", r"{"]
+    latex_to_html = [[r"\{", r"\left{"], r"{"]
 
 class LatexTokenRIGHT_CURLY_BRACE(LatexToken):
-    latex_to_html = [r"\}", r"}"]
+    latex_to_html = [[r"\}", r"\right}"], r"}"]
 
 class LatexTokenPLUSMINUS(LatexToken):
     latex_to_html = [r"\pm", r"&#177;"]
