@@ -1,37 +1,37 @@
 from typing import List, Union, Any, Optional
-from enum import Enum, auto
 
 T_AST = List[Union[str, "LatexToken", "LatexBlock"]]
 
 class LatexTokenMetaclass(type): 
 
     def __new__(cls, name, bases, dct):
+        l_2_h = dct["latex_to_html"]
+        if (not (l_2_h is None)):
+            if (type(l_2_h[0]) == list):
+                dct["latex_form"] = l_2_h[0]
+            else:
+                dct["latex_form"] = [l_2_h[0]]
+            dct["html_form"] = l_2_h[1]
+            if (len(l_2_h) > 2):
+                dct["_latex_signature_prefix"] = l_2_h[2]
+            if (len(l_2_h) > 3):
+                dct["_latex_signature_postfix"] = l_2_h[3]
         new_latex_token_class = super(LatexTokenMetaclass, cls).__new__(cls, name, bases, dct)
         if (name != "LatexToken"):
             new_latex_token_class._latex_token_classes.append(new_latex_token_class)
         return new_latex_token_class
 
 class LatexToken(metaclass = LatexTokenMetaclass):
-    _latex_token_classes : List[Any] = []
+    _latex_token_classes : List["LatexToken"] = []
     _latex_signature_prefix : int = 0
     _latex_signature_postfix : int = 0
-    __prefix_parameters : List[Any] = []
-    __postfix_parameters : List[Any] = []
-    __latex_form : List[str] = []
-    __html_form : str = ""
     latex_to_html : Optional[List[Any]] = None
+    latex_form : List[str] = []
+    html_form : str = ""
 
     def __init__(self) -> None:
-        if (not (self.latex_to_html is None)):
-            if (type(self.latex_to_html[0]) == list):
-                self.__latex_form = self.latex_to_html[0]
-            else:
-                self.__latex_form = [self.latex_to_html[0]]
-            self.__html_form = self.latex_to_html[1]
-            if (len(self.latex_to_html) > 2):
-                self._latex_signature_prefix = self.latex_to_html[2]
-            if (len(self.latex_to_html) > 3):
-                self._latex_signature_postfix = self.latex_to_html[3]
+        self.__prefix_parameters : List[Any] = []
+        self.__postfix_parameters : List[Any] = []
         return
 
     def pref_p(self, i : int) -> str:
@@ -53,29 +53,30 @@ class LatexToken(metaclass = LatexTokenMetaclass):
     @staticmethod
     def parse_tokens(res : T_AST) -> T_AST:
         for token_class in LatexToken._latex_token_classes:
-            token = token_class()
-            res = token.parse(res)
+            res = token_class.parse(res)
         return res
 
-    def parse(self, c : T_AST) -> T_AST:
-        for t_latex in self.__latex_form:
+    @classmethod
+    def parse(cls, c : T_AST) -> T_AST:
+        for t_latex in cls.latex_form:
             res : T_AST = []
             for s in c:
                 if (type(s) == str):
                     cur_pos = 0
-                    t_b = self.find_token_latex(s, t_latex, cur_pos)
+                    t_b = cls.find_token_latex(s, t_latex, cur_pos)
                     while (t_b != -1):
                         res.append(s[cur_pos:t_b])
-                        res.append(self)
+                        res.append(cls())
                         cur_pos = t_b + len(t_latex)
-                        t_b = self.find_token_latex(s, t_latex, cur_pos)
+                        t_b = cls.find_token_latex(s, t_latex, cur_pos)
                     res.append(s[cur_pos:len(s)])
                 else:
                     res.append(s)
             c = res
         return res
 
-    def find_token_latex(self, s : str, t_latex : str, cur_pos : int) -> int:
+    @staticmethod
+    def find_token_latex(s : str, t_latex : str, cur_pos : int) -> int:
         pos = s.find(t_latex, cur_pos)
         last_pos = pos + len(t_latex)
         if ((pos == -1) or (last_pos >= len(s))):
@@ -85,7 +86,7 @@ class LatexToken(metaclass = LatexTokenMetaclass):
         return pos
     
     def to_html(self) -> str:
-        return self.__html_form
+        return self.html_form
 
 # Greek letters
 
@@ -266,6 +267,24 @@ class LatexTokenPMOD(LatexToken):
     def to_html(self) -> str:
         res = f'(mod {self.post_p(0)})'
         return res
+
+# Environments
+
+class LatexTokenBegin(LatexToken):
+    latex_to_html = [r"\begin", None, 0, 1]
+
+    def to_html(self) -> str:
+        if (self.post_p(0) == "pmatrix"):
+            res = f'<table><tr><td>'
+        return res
+
+class LatexTokenEnd(LatexToken):
+    latex_to_html = [r"\end", None, 0, 1]
+
+    def to_html(self) -> str:
+        if (self.post_p(0) == "pmatrix"):
+            res = f'</td></tr></table>'
+        return res
     
 class LatexBlock:
     def __init__(self, st : str = "", cont : T_AST = []) -> None:
@@ -379,6 +398,10 @@ class LatexFormula(LatexBlock):
 class LatexText:
     def __init__(self, s : str) -> None:
         self.__content : List[Union[str, LatexFormula]] = []
+        # begin temporary solution for matrix handle
+        s = s.replace(" & ", " </td><td> ")
+        s = s.replace(" \\\\ ", " </td></tr><tr><td> ")
+        # end temporary solution for matrix handle
         self.__parse(s)
         return
 
